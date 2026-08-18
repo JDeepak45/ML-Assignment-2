@@ -6,6 +6,8 @@ confusion matrix and classification report.
 
 import json
 import pickle
+import subprocess
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -38,6 +40,60 @@ MODEL_FILES = {
     "SVM": "svm.pkl",
 }
 SCALED_MODELS = {"Logistic Regression", "kNN", "SVM"}
+
+REQUIRED_ARTIFACTS = [
+    "scaler.pkl", "label_encoder.pkl", "feature_names.json",
+    "class_names.json", "metrics_summary.csv",
+] + list(MODEL_FILES.values())
+
+
+def _artifacts_present() -> bool:
+    return all((MODEL_DIR / f).exists() for f in REQUIRED_ARTIFACTS)
+
+
+def _artifacts_loadable() -> bool:
+    """Sanity-check that pickled sklearn models actually load and run in
+    THIS environment's sklearn version (catches cross-version pickle
+    incompatibilities like the classic LogisticRegression 'multi_class'
+    AttributeError)."""
+    try:
+        with open(MODEL_DIR / "scaler.pkl", "rb") as f:
+            scaler = pickle.load(f)
+        with open(MODEL_DIR / "feature_names.json") as f:
+            feat_names = json.load(f)
+        dummy = pd.DataFrame(np.zeros((1, len(feat_names))), columns=feat_names)
+        dummy_scaled = scaler.transform(dummy)
+        for fname in MODEL_FILES.values():
+            with open(MODEL_DIR / fname, "rb") as f:
+                model = pickle.load(f)
+            model.predict_proba(dummy_scaled)  # exercises the failure path
+        return True
+    except Exception:
+        return False
+
+
+def _ensure_trained_models():
+    """Build the dataset and (re)train all models in THIS environment if
+    artifacts are missing or were pickled with an incompatible sklearn
+    version. Keeps the app self-healing across machines/deployments."""
+    if _artifacts_present() and _artifacts_loadable():
+        return
+    with st.spinner(
+        "Preparing models for this environment (first run, or a "
+        "scikit-learn version mismatch was detected) — this takes a "
+        "minute..."
+    ):
+        subprocess.run(
+            [sys.executable, str(BASE_DIR / "model" / "build_dataset.py")],
+            check=True, cwd=str(BASE_DIR),
+        )
+        subprocess.run(
+            [sys.executable, str(BASE_DIR / "model" / "train_models.py")],
+            check=True, cwd=str(BASE_DIR),
+        )
+
+
+_ensure_trained_models()
 
 
 @st.cache_resource

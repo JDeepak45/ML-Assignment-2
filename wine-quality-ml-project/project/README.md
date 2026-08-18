@@ -116,6 +116,16 @@ python model/train_models.py       # (re)trains all models, only needed once
 streamlit run app.py
 ```
 
+**Note on scikit-learn versions:** pickled scikit-learn models are only
+guaranteed to load correctly with the *same* scikit-learn version they were
+trained with. If you pull this repo onto a machine (or deploy it) with a
+different scikit-learn version than what produced the committed `.pkl`
+files, `app.py` detects this automatically at startup (it does a quick
+sanity `predict_proba` call on each model) and **retrains all models from
+scratch in the current environment** before serving the app — no manual
+steps needed. This also means the very first run after a fresh
+`pip install` may take a little longer while it retrains.
+
 ## Streamlit App Features
 
 - CSV upload of test data (with a `quality_class` column for evaluation, or
