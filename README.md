@@ -129,7 +129,7 @@ streamlit run app.py
 
 ## Live App
 
-> `<PASTE YOUR STREAMLIT COMMUNITY CLOUD LINK HERE AFTER DEPLOYMENT>`
+> `https://by2p2puvuvhecnghrfnngz.streamlit.app/`
 
 ## Data Source & Citation
 

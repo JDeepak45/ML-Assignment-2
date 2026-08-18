@@ -139,7 +139,7 @@ steps needed. This also means the very first run after a fresh
 
 ## Live App
 
-> `<PASTE YOUR STREAMLIT COMMUNITY CLOUD LINK HERE AFTER DEPLOYMENT>`
+> `https://by2p2puvuvhecnghrfnngz.streamlit.app/`
 
 ## Data Source & Citation
 
