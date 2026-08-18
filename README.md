@@ -49,7 +49,7 @@ app's upload/demo feature.
 
 ## c. GitHub Repository Link
 
-> `<PASTE YOUR GITHUB REPO LINK HERE AFTER YOU PUSH THIS PROJECT>`
+> `https://github.com/JDeepak45/ML-Assignment-2.git`
 
 ## d. Models Used
 
